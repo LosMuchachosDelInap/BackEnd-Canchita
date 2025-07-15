@@ -1,0 +1,56 @@
+# Dependencies
+/vendor/
+composer.lock
+
+# Environment files
+.env
+servidor.env
+*.env
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+logs/
+
+# Cache files
+cache/
+temp/
+tmp/
+
+# Configuration files (sensitive)
+config/database.php
+config/mail.php
+
+# Upload directories
+uploads/
+files/
+
+# PHP specific
+*.phar
+.phpunit.result.cache
+
+# Windows specific
+desktop.ini
+*.lnk
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Node modules (if any)
+node_modules/
+
+# Testing
+coverage/
+phpunit.xml
+.phpunit.cache/
