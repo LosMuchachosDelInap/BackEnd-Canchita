@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../Template/cors.php';
+
 require_once __DIR__ . '/../Model/Empleado.php';
 require_once __DIR__ . '/../ConectionBD/CConection.php';
 

@@ -1,18 +1,5 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-if (!defined('BASE_URL')) {
-    $protocolo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
-    $host = $_SERVER['HTTP_HOST'];
-    $carpeta = '';
-    define('BASE_URL', $protocolo . $host . $carpeta);
-}
-
-session_start();
-require_once __DIR__ . '/../Template/cors.php';
 require_once __DIR__ . '/../Model/Empleado.php';
 require_once __DIR__ . '/../Model/Persona.php';
 require_once __DIR__ . '/../Model/Usuario.php';
