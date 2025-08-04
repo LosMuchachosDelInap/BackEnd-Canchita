@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../Template/cors.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -6,72 +7,28 @@ use PHPMailer\PHPMailer\Exception;
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../Model/Contacto.php';
 require_once __DIR__ . '/mail_config.php';
+require_once __DIR__ . '/../ConectionBD/CConection.php';
+require_once __DIR__ . '/../Model/Reserva.php';
 
 use Dotenv\Dotenv;
 
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
 $dotenv->load();
 
-// Configuración de errores para desarrollo
-// Esto es útil para ver errores de PHP durante el desarrollo, pero no se recomienda en producción
-// muestra los errores en el navegador ,si los hay
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+$conn = (new ConectionDB())->getConnection();
 
-if (!defined('BASE_URL')) {
-    $protocolo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
-    $host = $_SERVER['HTTP_HOST'];
-    // $carpeta = '/Mis_proyectos/IFTS12-LaCanchitaDeLosPibes';// cuando usas XAMPP
-    $carpeta = ''; // cuando usas <localhost:8000>
-    define('BASE_URL', $protocolo . $host . $carpeta);
-}
+$data = json_decode(file_get_contents('php://input'), true);
 
-// Inicia la sesión antes de cualquier salida
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-// Llamo al archivo de la clase de conexión (lo requiero para poder instanciar la clase)
-require_once __DIR__ . '/../ConectionBD/CConection.php';
-// Instancio la clase
-$conectarDB = new ConectionDB();
-// Obtengo la conexión
-$conn = $conectarDB->getConnection();
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $data) {
+    $id_usuario = $data['id_usuario'] ?? null;
+    $id_cancha = isset($data['cancha']) ? intval($data['cancha']) : null;
+    $fecha = $data['fecha'] ?? null;
+    $horario = $data['horario'] ?? null;
 
-function obtenerReservasSemana($conn, $id_cancha, $dias, $horarios)
-{
-    if (empty($dias) || empty($horarios)) {
-        return [];
-    }
-    $reservas = [];
-    $ids_fechas = implode(',', array_map('intval', $dias));
-    $ids_horarios = implode(',', array_map('intval', $horarios));
-    $sql = "SELECT id_fecha, id_horario FROM reserva WHERE id_cancha = ? AND id_fecha IN ($ids_fechas) AND id_horario IN ($ids_horarios)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id_cancha);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    while ($row = $result->fetch_assoc()) {
-        $reservas[$row['id_fecha']][$row['id_horario']] = true;
-    }
-    return $reservas;
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'reservar') {
-    if (!isset($_SESSION['id_usuario'])) {
-        echo "Debes estar logueado para reservar.";
+    if (!$id_usuario || !$id_cancha || !$fecha || !$horario) {
+        echo json_encode(['success' => false, 'message' => 'Faltan datos para la reserva.']);
         exit;
     }
-    if (empty($_POST['cancha'])) {
-        echo "Debes seleccionar una cancha.";
-        exit;
-    }
-
-    $id_usuario = $_SESSION['id_usuario'];
-    $id_cancha = intval($_POST['cancha']);
-    $fecha = $_POST['fecha'];
-    $horario = $_POST['horario'];
-    //$precio = floatval($_POST['precio']); // Ahora es el precio real, no un id
 
     // Obtener o crear id_fecha
     $stmt = $conn->prepare("SELECT id_fecha FROM fecha WHERE fecha = ?");
@@ -83,18 +40,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if ($row) {
         $id_fecha = $row['id_fecha'];
     } else {
-        // Insertar la fecha si no existe
         $stmt_insert = $conn->prepare("INSERT INTO fecha (fecha) VALUES (?)");
         $stmt_insert->bind_param("s", $fecha);
         if ($stmt_insert->execute()) {
             $id_fecha = $conn->insert_id;
         } else {
-            echo "Error al guardar la fecha";
+            echo json_encode(['success' => false, 'message' => 'Error al guardar la fecha']);
             exit;
         }
     }
 
-    // Obtener id_horario (igual que antes)
+    // Obtener id_horario
     $stmt = $conn->prepare("SELECT id_horario FROM horario WHERE horario = ?");
     $stmt->bind_param("s", $horario);
     $stmt->execute();
@@ -103,13 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $id_horario = $row ? $row['id_horario'] : null;
 
     if ($id_fecha && $id_horario) {
-        require_once __DIR__ . '/../Model/Reserva.php';
         $reserva = new Reserva($id_usuario, $id_cancha, $id_fecha, $id_horario);
         if ($reserva->guardar($conn)) {
-
             // --- Envío de mail de confirmación con PHPMailer ---
-
-            // 1. Obtener email y datos del usuario
             $stmt = $conn->prepare("SELECT u.email, p.nombre, p.apellido FROM usuario u 
                                    JOIN persona p ON u.id_persona = p.id_persona 
                                    WHERE u.id_usuario = ?");
@@ -120,7 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $emailUsuario = $rowUser ? $rowUser['email'] : '';
             $nombreCompleto = $rowUser ? $rowUser['nombre'] . ' ' . $rowUser['apellido'] : 'Usuario';
 
-            // 2. Obtener nombre de la cancha
             $stmt = $conn->prepare("SELECT nombreCancha FROM cancha WHERE id_cancha = ?");
             $stmt->bind_param("i", $id_cancha);
             $stmt->execute();
@@ -128,22 +79,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $rowCancha = $result->fetch_assoc();
             $nombreCancha = $rowCancha ? $rowCancha['nombreCancha'] : 'Cancha';
 
-            // 3. Log para debug
-            logMail("Intentando enviar correo a: $emailUsuario para reserva de $nombreCancha");
-
-            // 4. Enviar el mail solo si hay email válido
             if ($emailUsuario && filter_var($emailUsuario, FILTER_VALIDATE_EMAIL)) {
-                logMail("Email válido, iniciando envío...");
                 $mail = new PHPMailer(true);
                 try {
-                    // Verificar que las variables de entorno existan
                     if (empty($_ENV['MAIL_HOST']) || empty($_ENV['MAIL_USERNAME']) || empty($_ENV['MAIL_PASSWORD'])) {
                         throw new Exception('Configuración de correo incompleta en .env');
                     }
-                    
-                    logMail("Configuración de correo validada, configurando SMTP...");
-
-                    // Configuración SMTP
                     $mail->isSMTP();
                     $mail->Host       = $_ENV['MAIL_HOST'];
                     $mail->SMTPAuth   = $_ENV['MAIL_SMTPAuth'] === 'true';
@@ -151,8 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     $mail->Password   = $_ENV['MAIL_PASSWORD'];
                     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                     $mail->Port       = intval($_ENV['MAIL_PORT']);
-                    
-                    // Configuración adicional para Gmail
                     $mail->SMTPOptions = array(
                         'ssl' => array(
                             'verify_peer' => false,
@@ -160,7 +99,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             'allow_self_signed' => true
                         )
                     );
-
                     $mail->setFrom($_ENV['MAIL_USERNAME'], 'La Canchita de los Pibes');
                     $mail->addAddress($emailUsuario, $nombreCompleto);
 
@@ -181,8 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <hr>
                         <small><em>Si tienes alguna consulta, no dudes en contactarnos.</em></small>
                     ";
-
-                    // Versión texto plano como alternativa
                     $mail->AltBody = "¡Hola $nombreCompleto!\n\n"
                         . "Tu reserva fue realizada con éxito.\n\n"
                         . "Detalles de tu reserva:\n"
@@ -190,27 +126,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         . "- Fecha: " . date('d/m/Y', strtotime($fecha)) . "\n"
                         . "- Horario: " . date('H:i', strtotime($horario)) . " hs\n\n"
                         . "¡Te esperamos!\nLa Canchita de los Pibes";
-
-                    logMail("Enviando correo...");
                     $mail->send();
-                    logMail('Correo de confirmación enviado exitosamente a: ' . $emailUsuario);
-                    
                 } catch (Exception $e) {
-                    logMail('Error al enviar mail de confirmación: ' . $e->getMessage());
-                    logMail('PHPMailer ErrorInfo: ' . $mail->ErrorInfo);
                     // No detener el proceso si falla el envío del correo
                 }
-            } else {
-                logMail('No se pudo enviar correo: email vacío o inválido (' . $emailUsuario . ')');
             }
-            // --- Fin envío de mail ---
-
-            echo "ok";
+            echo json_encode(['success' => true, 'message' => 'Reserva realizada con éxito.']);
         } else {
-            echo "Error al guardar la reserva";
+            echo json_encode(['success' => false, 'message' => 'Error al guardar la reserva.']);
         }
     } else {
-        echo "Fecha u horario inválido";
+        echo json_encode(['success' => false, 'message' => 'Fecha u horario inválido.']);
     }
     exit;
 }
+
+echo json_encode(['success' => false, 'message' => 'Método no permitido o datos inválidos.']);
+exit;

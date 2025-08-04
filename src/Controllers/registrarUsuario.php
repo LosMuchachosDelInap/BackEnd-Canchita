@@ -7,20 +7,24 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+
 require_once __DIR__ . '/../Model/Persona.php';
 require_once __DIR__ . '/../Model/Usuario.php';
 require_once __DIR__ . '/../Model/Empleado.php';
 require_once __DIR__ . '/../ConectionBD/CConection.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nombre   = $_POST['nombre'] ?? '';
-    $apellido = $_POST['apellido'] ?? '';
-    $edad     = $_POST['edad'] ?? '';
-    $dni      = $_POST['dni'] ?? '';
-    $telefono = $_POST['telefono'] ?? '';
-    $email    = $_POST['email'] ?? '';
-    $clave    = $_POST['clave'] ?? '';
-    $rol      = $_POST['rol'] ?? 6; // Por defecto, rol 6 (Cliente)
+    $data = json_decode(file_get_contents('php://input'), true);
+    $nombre   = $data['nombre'] ?? '';
+    $apellido = $data['apellido'] ?? '';
+    $edad     = $data['edad'] ?? '';
+    $dni      = $data['dni'] ?? '';
+    $telefono = $data['telefono'] ?? '';
+    $email    = $data['email'] ?? '';
+    $clave    = $data['clave'] ?? '';
+    $rol      = $data['rol'] ?? 6;
 
     $conn = (new ConectionDB())->getConnection();
 
@@ -30,8 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
     $stmt->store_result();
     if ($stmt->num_rows > 0) {
-        $_SESSION['registro_message'] = "El email ya está registrado.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);// redirige al usuario a la página anterior de donde vino
+        echo json_encode(['success' => false, 'message' => 'El email ya está registrado.']);
         exit;
     }
     $stmt->close();
@@ -39,31 +42,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Crear persona
     $persona = new Persona($nombre, $apellido, $edad, $dni, $telefono);
     if (!$persona->guardar($conn)) {
-        $_SESSION['registro_message'] = "Error al registrar persona.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);// redirige al usuario a la página anterior de donde vino
+        echo json_encode(['success' => false, 'message' => 'Error al registrar persona.']);
         exit;
     }
 
     // Crear usuario
     $usuario = new Usuario($email, $clave, $persona->getId());
     if (!$usuario->guardar($conn)) {
-        $_SESSION['registro_message'] = "Error al registrar usuario.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);// redirige al usuario a la página anterior de donde vino
+        echo json_encode(['success' => false, 'message' => 'Error al registrar usuario.']);
         exit;
     }
 
     // Crear empleado (si corresponde)
     $empleado = new Empleado($rol, $persona->getId(), $usuario->getId());
     if (!$empleado->guardar($conn)) {
-        $_SESSION['registro_message'] = "Error al registrar empleado.";
-        header("Location: " . $_SERVER['HTTP_REFERER']);// redirige al usuario a la página anterior de donde vino
+        echo json_encode(['success' => false, 'message' => 'Error al registrar empleado.']);
         exit;
     }
-    // mensaje de exito
-    $_SESSION['registro_message'] = "¡Registro exitoso! Ya puedes ingresar.";
-    header("Location: " . $_SERVER['HTTP_REFERER']);// redirige al usuario a la página anterior de donde vino
-    exit;
-} else {
-    header("Location: ../../index.php");
+
+    echo json_encode(['success' => true, 'message' => '¡Registro exitoso! Ya puedes ingresar.']);
     exit;
 }

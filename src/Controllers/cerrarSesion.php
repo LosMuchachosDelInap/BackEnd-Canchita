@@ -10,14 +10,12 @@ if (!defined('BASE_URL')) {
     define('BASE_URL', $protocolo . $host . $carpeta);
 }
 
+require_once __DIR__ . '/../Template/cors.php';
+
 session_start();
 unset($_SESSION['logged_in']);
-// cierra la sesion
 session_destroy();
-// redirigir a la página de inicio de sesión
-// RUTA GENERAL
-header('Location: ' . BASE_URL . '/index.php');
-// header('Location: /index.php');// usar en casa
-// header('Location: /Mis%20proyectos/IFTS12-LaCanchitaDeLosPibes/index.php');// usar en el trabajo
+
+echo json_encode(['success' => true, 'message' => 'Sesión cerrada correctamente.']);
 exit;
 ?>

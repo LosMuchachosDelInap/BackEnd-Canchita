@@ -12,6 +12,7 @@ if (!defined('BASE_URL')) {
 }
 
 session_start();
+require_once __DIR__ . '/../Template/cors.php';
 require_once __DIR__ . '/../Model/Empleado.php';
 require_once __DIR__ . '/../Model/Persona.php';
 require_once __DIR__ . '/../Model/Usuario.php';
@@ -19,25 +20,27 @@ require_once __DIR__ . '/../ConectionBD/CConection.php';
 
 $conn = (new ConectionDB())->getConnection();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['modificar'])) {
-    $idPersona = $_POST['id_persona'];
-    $idUsuario = $_POST['id_usuario'];
-    $idEmpleado = $_POST['id_empleado'];
-    $idRol = $_POST['rol'];
-    $nombre = $_POST['nombre'];
-    $apellido = $_POST['apellido'];
-    $edad = $_POST['edad'];
-    $dni = $_POST['dni'];
-    $telefono = $_POST['telefono'];
-    $email = $_POST['usuario'];
-    $clave = $_POST['clave'];
+$data = json_decode(file_get_contents('php://input'), true);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $data) {
+    $idPersona = $data['id_persona'] ?? null;
+    $idUsuario = $data['id_usuario'] ?? null;
+    $idEmpleado = $data['id_empleado'] ?? null;
+    $idRol = $data['rol'] ?? null;
+    $nombre = $data['nombre'] ?? null;
+    $apellido = $data['apellido'] ?? null;
+    $edad = $data['edad'] ?? null;
+    $dni = $data['dni'] ?? null;
+    $telefono = $data['telefono'] ?? null;
+    $email = $data['usuario'] ?? null;
+    $clave = $data['clave'] ?? null;
 
     // Actualizar persona
     $persona = Persona::buscarPorId($conn, $idPersona);
     if ($persona) {
         $persona->setNombre($nombre);
         $persona->setApellido($apellido);
-         $persona->setEdad($edad);
+        $persona->setEdad($edad);
         $persona->setDni($dni);
         $persona->setTelefono($telefono);
         $persona->actualizar($conn); 
@@ -60,6 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['modificar'])) {
         $empleado->actualizar($conn); 
     }
 
-  header('Location: ' . BASE_URL . '/src/Controllers/listadoEmpleadosController.php');
+    echo json_encode(['success' => true, 'message' => 'Empleado modificado correctamente']);
     exit;
 }
+
+echo json_encode(['success' => false, 'message' => 'Datos inválidos o método incorrecto']);
+exit;

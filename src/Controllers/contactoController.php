@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../Template/cors.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -11,13 +12,14 @@ use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
 $dotenv->load();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
-    $mensaje = trim($_POST['mensaje'] ?? '');
+$data = json_decode(file_get_contents('php://input'), true);
 
-    // Si falta email o mensaje, mostrar error y no enviar
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $data) {
+    $email = trim($data['email'] ?? '');
+    $mensaje = trim($data['mensaje'] ?? '');
+
     if (empty($email) || empty($mensaje)) {
-        echo "<div class='alert alert-danger'>Debe completar todos los campos.</div>";
+        echo json_encode(['success' => false, 'message' => 'Debe completar todos los campos.']);
         exit;
     }
 
@@ -25,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $mail = new PHPMailer(true);
     try {
-        // Configuración básica de PHPMailer
         $mail->isSMTP();
         $mail->Host       = $_ENV['MAIL_HOST'];
         $mail->SMTPAuth   = $_ENV['MAIL_SMTPAuth'] === 'true';
@@ -35,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mail->Port       = $_ENV['MAIL_PORT'];
 
         $mail->setFrom($contacto->getEmail(), 'Consulta Web');
-        $mail->addAddress($_ENV['MAIL_USERNAME']); // Destinatario
+        $mail->addAddress($_ENV['MAIL_USERNAME']);
 
         $mail->isHTML(true);
         $mail->Subject = 'Nueva consulta desde el sitio';
@@ -44,9 +45,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <b>Mensaje:</b><br>" . nl2br(htmlspecialchars($contacto->getMensaje()));
 
         $mail->send();
-        echo "<div class='alert alert-success'>¡Consulta enviada correctamente!</div>";
+        echo json_encode(['success' => true, 'message' => '¡Consulta enviada correctamente!']);
     } catch (Exception $e) {
-        echo "<div class='alert alert-danger'>No se pudo enviar el mensaje. Error: {$mail->ErrorInfo}</div>";
+        echo json_encode(['success' => false, 'message' => 'No se pudo enviar el mensaje. Error: ' . $mail->ErrorInfo]);
     }
     exit;
 }
+
+echo json_encode(['success' => false, 'message' => 'Método no permitido o datos inválidos.']);
+exit;
