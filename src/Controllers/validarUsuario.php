@@ -10,10 +10,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $clave = trim($data['clave'] ?? '');
     $conn = (new ConectionDB())->getConnection();
 
-    $stmt = $conn->prepare("SELECT u.email, u.clave, u.id_usuario, u.id_persona, e.id_rol, r.rol
+    $stmt = $conn->prepare("SELECT u.email, u.clave, u.id_usuario, u.id_persona, e.id_rol, r.rol, p.nombre, p.apellido, p.dni, p.telefono, p.edad
         FROM usuario u
         JOIN empleado e ON u.id_usuario = e.id_usuario
         JOIN roles r ON e.id_rol = r.id_roles
+        JOIN persona p ON u.id_persona = p.id_persona
         WHERE u.email = ? AND u.habilitado = 1 AND u.cancelado = 0");
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -30,7 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'email' => $fila['email'],
                     'id_usuario' => $fila['id_usuario'],
                     'id_rol' => $fila['id_rol'],
-                    'nombre_rol' => $fila['rol']
+                    'nombre_rol' => $fila['rol'],
+                    'nombre' => $fila['nombre'],
+                    'apellido' => $fila['apellido'],
+                    'dni' => $fila['dni'],
+                    'telefono' => $fila['telefono'],
+                    'edad' => $fila['edad'],
+                    'rol' => $fila['rol']
                 ]
             ]);
             exit;
