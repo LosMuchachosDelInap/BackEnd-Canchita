@@ -59,7 +59,8 @@ class Empleado {
     }
 
      public static function listarTodos($conn) {
-        $sql = "SELECT e.id_empleado, u.email, p.nombre, p.apellido, p.edad, p.dni, p.telefono, r.rol
+        $sql = "SELECT e.id_empleado, e.id_usuario, e.id_persona, e.id_rol, 
+                       u.email, p.nombre, p.apellido, p.edad, p.dni, p.telefono, r.rol
                 FROM empleado e
                 JOIN usuario u ON e.id_usuario = u.id_usuario
                 JOIN persona p ON e.id_persona = p.id_persona
