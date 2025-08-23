@@ -1,52 +1,61 @@
 <?php
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: http://localhost:4200');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
-}
-
+require_once '../Template/cors.php';
 require_once '../ConectionBD/CConection.php';
-require_once '../Model/Reserva.php';
 
 try {
     $conn = (new ConectionDB())->getConnection();
     
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        if (isset($_GET['id_usuario'])) {
-            // Obtener reservas de un usuario específico
-            $id_usuario = intval($_GET['id_usuario']);
-            
-            $sql = "SELECT r.*, c.nombreCancha, c.precio, h.horario, f.fecha, u.email, p.nombre, p.apellido, p.telefono
-                    FROM reserva r
-                    JOIN cancha c ON r.id_cancha = c.id_cancha
-                    JOIN horario h ON r.id_horario = h.id_horario
-                    JOIN fecha f ON r.id_fecha = f.id_fecha
-                    JOIN usuario u ON r.id_usuario = u.id_usuario
-                    LEFT JOIN persona p ON u.id_persona = p.id_persona
-                    WHERE r.id_usuario = ? AND r.habilitado = 1
-                    ORDER BY f.fecha DESC, h.horario DESC";
-            
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $id_usuario);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            $reservas = [];
-            while ($row = $result->fetch_assoc()) {
-                $reservas[] = $row;
-            }
-            
-            echo json_encode($reservas);
-            
-        } else {
-            // Obtener todas las reservas usando el modelo existente
-            $reservas = Reserva::listarTodas($conn);
-            echo json_encode($reservas);
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id_usuario'])) {
+        // Obtener reservas de un usuario específico
+        $id_usuario = intval($_GET['id_usuario']);
+        
+        $sql = "SELECT r.*, c.nombreCancha, c.precio, h.horario, f.fecha, u.email, p.nombre, p.apellido, p.telefono
+                FROM reserva r
+                JOIN cancha c ON r.id_cancha = c.id_cancha
+                JOIN horario h ON r.id_horario = h.id_horario
+                JOIN fecha f ON r.id_fecha = f.id_fecha
+                JOIN usuario u ON r.id_usuario = u.id_usuario
+                LEFT JOIN persona p ON u.id_persona = p.id_persona
+                WHERE r.id_usuario = ? AND r.habilitado = 1
+                ORDER BY f.fecha DESC, h.horario DESC";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id_usuario);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $reservas = [];
+        while ($row = $result->fetch_assoc()) {
+            // Asegurar que todos los valores son del tipo correcto
+            $reservas[] = [
+                'id_reserva' => (int)$row['id_reserva'],
+                'id_usuario' => (int)$row['id_usuario'],
+                'id_cancha' => (int)$row['id_cancha'],
+                'id_fecha' => (int)$row['id_fecha'],
+                'id_horario' => (int)$row['id_horario'],
+                'idCreate' => $row['idCreate'],
+                'idUpdate' => $row['idUpdate'],
+                'habilitado' => (int)$row['habilitado'],
+                'cancelado' => (int)$row['cancelado'],
+                'nombreCancha' => $row['nombreCancha'],
+                'precio' => (float)$row['precio'],
+                'horario' => $row['horario'],
+                'fecha' => $row['fecha'],
+                'email' => $row['email'],
+                'nombre' => $row['nombre'] ?? '',
+                'apellido' => $row['apellido'] ?? '',
+                'telefono' => $row['telefono'] ?? ''
+            ];
         }
+        
+        // Asegurar que el JSON es válido
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($reservas, JSON_UNESCAPED_UNICODE);
+        exit;
     }
+    
+    // Si no hay parámetros específicos, devolver array vacío
+    echo json_encode([]);
     
 } catch (Exception $e) {
     http_response_code(500);
