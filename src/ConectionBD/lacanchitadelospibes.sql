@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 27-06-2025 a las 01:34:15
+-- Tiempo de generación: 26-08-2025 a las 14:14:40
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -20,9 +20,9 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `lacanchitadelospibes`
 --
-CREATE DATABASE IF NOT EXISTS `lacanchitadelospibes` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
 -- --------------------------------------------------------
-USE `lacanchitadelospibes`;
+
 --
 -- Estructura de tabla para la tabla `cancha`
 --
@@ -66,7 +66,14 @@ CREATE TABLE `empleado` (
   `idUpdate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `empleado`
+--
 
+INSERT INTO `empleado` (`id_empleado`, `id_rol`, `id_persona`, `id_usuario`, `habilitado`, `cancelado`, `idCreate`, `idUpdate`) VALUES
+(21, 2, 27, 24, 1, 0, '2025-06-28 13:26:46', '2025-06-28 13:41:04'),
+(22, 6, 28, 25, 1, 0, '2025-08-20 11:48:26', '2025-08-20 11:48:26'),
+(23, 6, 29, 26, 1, 0, '2025-08-21 18:29:19', '2025-08-21 18:29:19');
 
 -- --------------------------------------------------------
 
@@ -83,6 +90,20 @@ CREATE TABLE `fecha` (
   `cancelado` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `fecha`
+--
+
+INSERT INTO `fecha` (`id_fecha`, `fecha`, `idCreate`, `idUpdate`, `habilitado`, `cancelado`) VALUES
+(3, '2025-06-26', '2025-06-28 13:27:48', '2025-06-28 13:27:48', 1, 0),
+(4, '2025-07-05', '2025-06-28 13:46:00', '2025-06-28 13:46:00', 1, 0),
+(5, '2025-07-11', '2025-06-28 14:34:19', '2025-06-28 14:34:19', 1, 0),
+(6, '2025-08-28', '2025-08-23 14:46:59', '2025-08-23 14:46:59', 1, 0),
+(7, '2025-08-25', '2025-08-23 15:06:57', '2025-08-23 15:06:57', 1, 0),
+(8, '2025-08-29', '2025-08-25 13:50:09', '2025-08-25 13:50:09', 1, 0),
+(9, '2025-08-27', '2025-08-25 15:30:07', '2025-08-25 15:30:07', 1, 0),
+(10, '2025-08-30', '2025-08-25 15:33:16', '2025-08-25 15:33:16', 1, 0),
+(11, '2025-08-31', '2025-08-26 11:38:03', '2025-08-26 11:38:03', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -118,6 +139,7 @@ INSERT INTO `horario` (`id_horario`, `horario`, `idCreate`, `idUpdate`, `habilit
 (12, '19:00:00', '2025-06-25 01:57:48', '2025-06-25 01:57:48', 1, 0),
 (13, '20:00:00', '2025-06-25 01:57:48', '2025-06-25 01:57:48', 1, 0),
 (14, '21:00:00', '2025-06-25 01:57:48', '2025-06-25 01:57:48', 1, 0);
+
 -- --------------------------------------------------------
 
 --
@@ -137,6 +159,14 @@ CREATE TABLE `persona` (
   `idUpdate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `persona`
+--
+
+INSERT INTO `persona` (`id_persona`, `apellido`, `nombre`, `edad`, `dni`, `telefono`, `habilitado`, `cancelado`, `idCreate`, `idUpdate`) VALUES
+(27, 'mino', 'seba', '56', '26586325', '03354658955', 1, 0, '2025-06-28 13:26:46', '2025-06-30 13:51:54'),
+(28, 'Del_Inap', 'Los Muchachos', '18', '23695475', '1157598523', 1, 0, '2025-08-20 11:48:26', '2025-08-20 17:19:57'),
+(29, 'minotti', 'sebastian', '18', '26325896', '1156236589', 1, 0, '2025-08-21 18:29:19', '2025-08-21 18:29:19');
 
 -- --------------------------------------------------------
 
@@ -156,6 +186,21 @@ CREATE TABLE `reserva` (
   `cancelado` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `reserva`
+--
+
+INSERT INTO `reserva` (`id_reserva`, `id_usuario`, `id_cancha`, `id_fecha`, `id_horario`, `idCreate`, `idUpdate`, `habilitado`, `cancelado`) VALUES
+(6, 24, 1, 3, 4, '2025-06-28 13:27:48', '2025-06-28 13:27:48', 1, 0),
+(7, 24, 1, 4, 5, '2025-06-28 13:46:00', '2025-06-28 13:46:00', 1, 0),
+(8, 24, 1, 5, 4, '2025-06-28 14:34:19', '2025-06-28 14:34:19', 1, 0),
+(9, 25, 3, 6, 8, '2025-08-23 14:46:59', '2025-08-23 14:46:59', 1, 0),
+(10, 25, 4, 7, 13, '2025-08-23 15:06:57', '2025-08-23 15:06:57', 1, 0),
+(11, 24, 4, 8, 8, '2025-08-25 13:50:10', '2025-08-25 13:50:10', 1, 0),
+(12, 25, 3, 9, 13, '2025-08-25 15:30:07', '2025-08-25 15:30:07', 1, 0),
+(13, 24, 5, 10, 10, '2025-08-25 15:33:16', '2025-08-25 15:33:16', 1, 0),
+(14, 24, 2, 11, 8, '2025-08-26 11:38:03', '2025-08-26 11:38:03', 1, 0),
+(15, 25, 3, 9, 13, '2025-08-26 11:43:19', '2025-08-26 11:43:19', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -179,7 +224,7 @@ CREATE TABLE `roles` (
 INSERT INTO `roles` (`id_roles`, `idCreate`, `idUpdate`, `habilitado`, `cancelado`, `rol`) VALUES
 (0, '0000-00-00 00:00:00', '0000-00-00 00:00:00', 0, 0, ''),
 (1, '2025-05-15 00:54:58', '2025-05-15 00:54:58', 1, 0, 'Dueño'),
-(2, '2025-05-15 01:04:06', '2025-05-25 02:04:08', 1, 0, 'Adminstrador'),
+(2, '2025-05-15 01:04:06', '2025-06-28 13:43:32', 1, 0, 'Administrador'),
 (3, '0000-00-00 00:00:00', '2025-05-15 01:06:18', 1, 0, 'Bar'),
 (4, '2025-05-15 01:05:25', '2025-05-15 01:05:25', 1, 0, 'Alquiler'),
 (5, '0000-00-00 00:00:00', '2025-05-15 01:07:47', 1, 0, 'Estacionamiento'),
@@ -193,7 +238,7 @@ INSERT INTO `roles` (`id_roles`, `idCreate`, `idUpdate`, `habilitado`, `cancelad
 
 CREATE TABLE `usuario` (
   `id_usuario` int(4) NOT NULL,
-  `email` varchar(30) NOT NULL,
+  `email` varchar(40) NOT NULL,
   `clave` varchar(100) NOT NULL,
   `id_persona` int(11) NOT NULL,
   `idUpdate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -202,6 +247,14 @@ CREATE TABLE `usuario` (
   `cancelado` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `usuario`
+--
+
+INSERT INTO `usuario` (`id_usuario`, `email`, `clave`, `id_persona`, `idUpdate`, `idCreate`, `habilitado`, `cancelado`) VALUES
+(24, 'sebastianminotti@gmail.com', '$2y$10$6wdgf2sdF0nm34vvwxIHu.y1gqFpG5h/j8x/ePGEN6nuYe.jysEqy', 27, '2025-06-28 13:26:46', '2025-06-28 13:26:46', 1, 0),
+(25, 'losmuchachosdelinapifts@gmail.com', '$2y$10$Ek.t2FStpwiCCJE96BgLx.oFeLUfzNuN/gin9bIJ2lvei4bR5Vxye', 28, '2025-08-20 11:54:29', '2025-08-20 11:48:26', 1, 0),
+(26, 'sminotti@outlook.es', '$2y$10$OXaYH66BqiwebDVnTpgo6O83QnTT0xfUaDw0o/b2iqUGn/O03xYyi', 29, '2025-08-21 18:29:19', '2025-08-21 18:29:19', 1, 0);
 
 --
 -- Índices para tablas volcadas
@@ -277,13 +330,13 @@ ALTER TABLE `cancha`
 -- AUTO_INCREMENT de la tabla `empleado`
 --
 ALTER TABLE `empleado`
-  MODIFY `id_empleado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id_empleado` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT de la tabla `fecha`
 --
 ALTER TABLE `fecha`
-  MODIFY `id_fecha` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_fecha` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `horario`
@@ -295,13 +348,13 @@ ALTER TABLE `horario`
 -- AUTO_INCREMENT de la tabla `persona`
 --
 ALTER TABLE `persona`
-  MODIFY `id_persona` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id_persona` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT de la tabla `reserva`
 --
 ALTER TABLE `reserva`
-  MODIFY `id_reserva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_reserva` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT de la tabla `roles`
@@ -313,7 +366,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id_usuario` int(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id_usuario` int(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- Restricciones para tablas volcadas
