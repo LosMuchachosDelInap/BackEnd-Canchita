@@ -4,6 +4,7 @@ require_once __DIR__ . '/../Model/Persona.php';
 require_once __DIR__ . '/../Model/Usuario.php';
 require_once __DIR__ . '/../Model/Empleado.php';
 require_once __DIR__ . '/../ConectionBD/CConection.php';
+require_once __DIR__ . '/EmailService.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
@@ -50,6 +51,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    echo json_encode(['success' => true, 'message' => '¡Registro exitoso! Ya puedes ingresar.']);
+    // Enviar email de confirmación de registro
+    try {
+        $emailService = new EmailService();
+        $resultadoEmail = $emailService->enviarConfirmacionRegistro($email, $nombre, $apellido);
+        
+        if ($resultadoEmail['success']) {
+            echo json_encode([
+                'success' => true, 
+                'message' => '¡Registro exitoso! Te enviamos un email de confirmación a tu casilla.',
+                'email_enviado' => true
+            ]);
+        } else {
+            // Registro exitoso pero email falló - informar al usuario
+            echo json_encode([
+                'success' => true, 
+                'message' => '¡Registro exitoso! Sin embargo, hubo un problema al enviar el email de confirmación. Ya puedes ingresar normalmente.',
+                'email_enviado' => false,
+                'email_error' => $resultadoEmail['message']
+            ]);
+        }
+    } catch (Exception $e) {
+        // Registro exitoso pero error en email - no fallar el registro
+        echo json_encode([
+            'success' => true, 
+            'message' => '¡Registro exitoso! Sin embargo, hubo un problema al enviar el email de confirmación. Ya puedes ingresar normalmente.',
+            'email_enviado' => false,
+            'email_error' => 'Error interno del servicio de email'
+        ]);
+    }
+    
     exit;
 }
