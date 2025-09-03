@@ -66,14 +66,6 @@ CREATE TABLE `empleado` (
   `idUpdate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `empleado`
---
-
-INSERT INTO `empleado` (`id_empleado`, `id_rol`, `id_persona`, `id_usuario`, `habilitado`, `cancelado`, `idCreate`, `idUpdate`) VALUES
-(21, 2, 27, 24, 1, 0, '2025-06-28 13:26:46', '2025-06-28 13:41:04'),
-(22, 6, 28, 25, 1, 0, '2025-08-20 11:48:26', '2025-08-20 11:48:26'),
-(23, 6, 29, 26, 1, 0, '2025-08-21 18:29:19', '2025-08-21 18:29:19');
 
 -- --------------------------------------------------------
 
@@ -90,20 +82,6 @@ CREATE TABLE `fecha` (
   `cancelado` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `fecha`
---
-
-INSERT INTO `fecha` (`id_fecha`, `fecha`, `idCreate`, `idUpdate`, `habilitado`, `cancelado`) VALUES
-(3, '2025-06-26', '2025-06-28 13:27:48', '2025-06-28 13:27:48', 1, 0),
-(4, '2025-07-05', '2025-06-28 13:46:00', '2025-06-28 13:46:00', 1, 0),
-(5, '2025-07-11', '2025-06-28 14:34:19', '2025-06-28 14:34:19', 1, 0),
-(6, '2025-08-28', '2025-08-23 14:46:59', '2025-08-23 14:46:59', 1, 0),
-(7, '2025-08-25', '2025-08-23 15:06:57', '2025-08-23 15:06:57', 1, 0),
-(8, '2025-08-29', '2025-08-25 13:50:09', '2025-08-25 13:50:09', 1, 0),
-(9, '2025-08-27', '2025-08-25 15:30:07', '2025-08-25 15:30:07', 1, 0),
-(10, '2025-08-30', '2025-08-25 15:33:16', '2025-08-25 15:33:16', 1, 0),
-(11, '2025-08-31', '2025-08-26 11:38:03', '2025-08-26 11:38:03', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -159,14 +137,6 @@ CREATE TABLE `persona` (
   `idUpdate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `persona`
---
-
-INSERT INTO `persona` (`id_persona`, `apellido`, `nombre`, `edad`, `dni`, `telefono`, `habilitado`, `cancelado`, `idCreate`, `idUpdate`) VALUES
-(27, 'mino', 'seba', '56', '26586325', '03354658955', 1, 0, '2025-06-28 13:26:46', '2025-06-30 13:51:54'),
-(28, 'Del_Inap', 'Los Muchachos', '18', '23695475', '1157598523', 1, 0, '2025-08-20 11:48:26', '2025-08-20 17:19:57'),
-(29, 'minotti', 'sebastian', '18', '26325896', '1156236589', 1, 0, '2025-08-21 18:29:19', '2025-08-21 18:29:19');
 
 -- --------------------------------------------------------
 
@@ -186,21 +156,6 @@ CREATE TABLE `reserva` (
   `cancelado` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `reserva`
---
-
-INSERT INTO `reserva` (`id_reserva`, `id_usuario`, `id_cancha`, `id_fecha`, `id_horario`, `idCreate`, `idUpdate`, `habilitado`, `cancelado`) VALUES
-(6, 24, 1, 3, 4, '2025-06-28 13:27:48', '2025-06-28 13:27:48', 1, 0),
-(7, 24, 1, 4, 5, '2025-06-28 13:46:00', '2025-06-28 13:46:00', 1, 0),
-(8, 24, 1, 5, 4, '2025-06-28 14:34:19', '2025-06-28 14:34:19', 1, 0),
-(9, 25, 3, 6, 8, '2025-08-23 14:46:59', '2025-08-23 14:46:59', 1, 0),
-(10, 25, 4, 7, 13, '2025-08-23 15:06:57', '2025-08-23 15:06:57', 1, 0),
-(11, 24, 4, 8, 8, '2025-08-25 13:50:10', '2025-08-25 13:50:10', 1, 0),
-(12, 25, 3, 9, 13, '2025-08-25 15:30:07', '2025-08-25 15:30:07', 1, 0),
-(13, 24, 5, 10, 10, '2025-08-25 15:33:16', '2025-08-25 15:33:16', 1, 0),
-(14, 24, 2, 11, 8, '2025-08-26 11:38:03', '2025-08-26 11:38:03', 1, 0),
-(15, 25, 3, 9, 13, '2025-08-26 11:43:19', '2025-08-26 11:43:19', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -247,18 +202,6 @@ CREATE TABLE `usuario` (
   `cancelado` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `usuario`
---
-
-INSERT INTO `usuario` (`id_usuario`, `email`, `clave`, `id_persona`, `idUpdate`, `idCreate`, `habilitado`, `cancelado`) VALUES
-(24, 'sebastianminotti@gmail.com', '$2y$10$6wdgf2sdF0nm34vvwxIHu.y1gqFpG5h/j8x/ePGEN6nuYe.jysEqy', 27, '2025-06-28 13:26:46', '2025-06-28 13:26:46', 1, 0),
-(25, 'losmuchachosdelinapifts@gmail.com', '$2y$10$Ek.t2FStpwiCCJE96BgLx.oFeLUfzNuN/gin9bIJ2lvei4bR5Vxye', 28, '2025-08-20 11:54:29', '2025-08-20 11:48:26', 1, 0),
-(26, 'sminotti@outlook.es', '$2y$10$OXaYH66BqiwebDVnTpgo6O83QnTT0xfUaDw0o/b2iqUGn/O03xYyi', 29, '2025-08-21 18:29:19', '2025-08-21 18:29:19', 1, 0);
-
---
--- Índices para tablas volcadas
---
 
 --
 -- Indices de la tabla `cancha`
